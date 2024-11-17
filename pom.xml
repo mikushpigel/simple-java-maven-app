@@ -4,8 +4,13 @@
   <groupId>com.mycompany.app</groupId>
   <artifactId>my-app</artifactId>
   <packaging>jar</packaging>
+<<<<<<< HEAD
   <version>1.0.1</version>
   <name>my-app</name>
+=======
+  <version>1.0.0</version>
+  <name>my-app1</name>
+>>>>>>> 71a1c16 (add patch versioning)
   <url>https://maven.apache.org</url>
   <dependencies>
     <dependency>
