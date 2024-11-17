@@ -1,0 +1,42 @@
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+
+    - name: Update patch version
+      run: |
+        VERSION_FILE=version.txt
+        if [ ! -f "$VERSION_FILE" ]; then
+          echo "1.0.0" > $VERSION_FILE
+        fi
+        VERSION=$(cat $VERSION_FILE)
+        PATCH=$(echo $VERSION | awk -F. '{print $3}')
+        NEW_VERSION=$(echo $VERSION | awk -F. -v P=$PATCH '{print $1"."$2"."P+1}')
+        echo $NEW_VERSION > $VERSION_FILE
+        echo "Updated version to $NEW_VERSION"
+
+    - name: Build with Maven
+      run: mvn clean package
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/simple-java-app:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/simple-java-app:latest
